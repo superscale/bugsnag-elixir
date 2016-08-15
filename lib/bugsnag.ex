@@ -20,18 +20,21 @@ defmodule Bugsnag do
   def report(exception, options \\ []) do
     stacktrace = options[:stacktrace] || System.stacktrace
 
-    spawn fn ->
+    #spawn fn ->
       Payload.new(exception, stacktrace, options)
         |> to_json
         |> send_notification
-    end
+    #end
   end
 
   def to_json(payload) do
-    payload |> Poison.encode!
+    payload |> Poison.encode!#(pretty: true)
   end
 
   defp send_notification(body) do
+    #IO.puts("URL #{@notify_url}")
+    #IO.puts("HDR #{inspect @request_headers}")
+    #IO.puts("BDY #{body}")
     HTTPoison.post @notify_url, body, @request_headers
   end
 

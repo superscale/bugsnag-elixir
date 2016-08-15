@@ -40,6 +40,15 @@ defmodule Bugsnag.Logger do
     {:ok, state}
   end
 
+  def handle_event({:error, _gl, {pid, format, event}}, state) do
+    # sometimes errors are formatted in other ways
+    pid = if is_pid(pid), do: pid, else: self()
+    {:current_stacktrace, stacktrace} = Process.info(pid, :current_stacktrace) || {:current_stacktrace, System.stacktrace}
+
+    Bugsnag.report("#{format} - #{inspect event}", stacktrace: stacktrace)
+    {:ok, state}
+  end
+
   def handle_event({_level, _gl, _event}, state) do
     {:ok, state}
   end
