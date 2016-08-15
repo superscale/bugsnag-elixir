@@ -33,11 +33,21 @@ defmodule Bugsnag.Payload do
     Map.put payload, :events, [event]
   end
 
-  defp add_exception(event, exception, stacktrace) do
+  defp add_exception(event, exception, []) do
+    do_add_exception(event, exception, [%{
+      file: "no-file",
+      lineNumber: 1,
+      method: "none"}])
+  end
+
+  defp add_exception(event, exception, stacktrace),
+    do: do_add_exception(event, exception, format_stacktrace(stacktrace))
+
+  defp do_add_exception(event, exception, formatted_stacktrace) do
     Map.put event, :exceptions, [%{
       errorClass: exception.__struct__,
       message: Exception.message(exception),
-      stacktrace: format_stacktrace(stacktrace)
+      stacktrace: formatted_stacktrace
     }]
   end
 
